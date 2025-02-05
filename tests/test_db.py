@@ -1,9 +1,9 @@
-from db.db import Database
+from db.db import Database, get_db
 from unittest.mock import patch, MagicMock
 import pytest
 import psycopg2
 import config
-
+from fastapi import HTTPException, status
 
 @pytest.fixture(autouse=True)
 def reset_database_instance():
@@ -137,3 +137,19 @@ def test_close_pool(mock_closeall, caplog: pytest.LogCaptureFixture):
     mock_closeall.assert_called_once()
 
     assert "🔒 Database connection pool closed." in caplog.text
+
+def test_get_db():
+    db_instance = get_db()
+    assert isinstance(db_instance, Database)
+
+
+@patch("db.db.Database", side_effect=Exception("DB Initialization Error"))
+def test_get_db_failure(mock_db, caplog):
+    with caplog.at_level("ERROR"):
+        with pytest.raises(HTTPException) as exc_info:
+            get_db()
+
+    assert exc_info.value.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+    assert exc_info.value.detail == "Database is temporarily unavailable. Please try again later."
+
+    assert "🚨 Database initialization failed: DB Initialization Error" in caplog.text
