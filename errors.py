@@ -1,5 +1,6 @@
 import re
 from fastapi import Request, HTTPException
+from slowapi.errors import RateLimitExceeded
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
