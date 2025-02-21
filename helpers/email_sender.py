@@ -6,7 +6,7 @@ from config import SMTP_PASS, SMTP_HOST, SMTP_PORT, SMTP_USER
 from helpers.logger import AppLogger
 from config import SMTP_USER, BASE_DOMAIN
 
-logger = AppLogger(log_file="email.log")
+logger = AppLogger(log_file="email.log", logger_name="email_service")
 
 class EmailSender:
     def __init__(self):

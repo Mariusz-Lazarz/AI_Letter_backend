@@ -1,17 +1,20 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
 from schemas.user import UserCreate
 from models.user import User
 from database import SessionDep
 from helpers.auth import hash_password, sign_jwt
 from helpers.email_sender import EmailSender
+from helpers.limiter import RateLimiterService
+from config import RATE_LIMIT_REGISTER
 
 email_sender = EmailSender()
+limiter = RateLimiterService()
 
 router = APIRouter(prefix="/auth")
 
-@router.post("/register", status_code=201, include_in_schema=False)
-async def register(user_data: UserCreate, session: SessionDep):
-
+@router.post("/register", status_code=201)
+@limiter.limit(RATE_LIMIT_REGISTER)
+async def register(request: Request, user_data: UserCreate, session: SessionDep):
     try:
         verification_token = sign_jwt({"email": user_data.email})
         password_hash = hash_password(user_data.password)
@@ -28,5 +31,4 @@ async def register(user_data: UserCreate, session: SessionDep):
     except:
         session.rollback()
         raise
-
-
+  

@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from helpers.logger import AppLogger
 import json
 
-logger = AppLogger()
+logger = AppLogger(log_file="app.log", logger_name="fastapi_app")
 
 async def integrity_error_handler(request: Request, exc: IntegrityError):
     """Handles database integrity errors (unique constraint violations)."""
@@ -55,3 +55,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         logger.log_warning(f"HTTP Exception at {request.url}: {exc.detail}")
 
     return JSONResponse(status_code=exc.status_code, content={"errors": [exc.detail]})
+
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    logger.log_warning(exc)
+    return JSONResponse(status_code=429, content={"errors": ["Too many request please try again later!"]})

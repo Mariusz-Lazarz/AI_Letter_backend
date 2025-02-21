@@ -4,9 +4,9 @@ import sys
 class AppLogger:
     """Centralized logging utility for FastAPI application."""
 
-    def __init__(self, log_file: str = "app.log"):
+    def __init__(self, log_file: str = "app.log", logger_name: str = "fastapi_app"):
         """Initialize logger with both console and file handlers."""
-        self.logger = logging.getLogger("fastapi_app")
+        self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.INFO)
 
         if not self.logger.hasHandlers():

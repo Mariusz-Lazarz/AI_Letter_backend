@@ -5,6 +5,9 @@ from unittest.mock import patch
 from sqlmodel import Session, select, delete
 from database import engine
 from models.user import User
+import time
+from routers.auth import limiter
+from config import RATE_LIMIT_REGISTER
 
 def test_register_user(client):
     """Test the user registration API using a real database (with cleanup)."""
@@ -77,7 +80,6 @@ def test_register_email_sent(client, email_sender):
     with Session(engine) as session:
             session.exec(delete(User).where(User.email == unique_test_email))
             session.commit()
-            print(f"🗑️ Deleted test user: {unique_test_email}")
 
 
 def test_user_persisted_after_registration(client):
@@ -100,4 +102,47 @@ def test_user_persisted_after_registration(client):
     with Session(engine) as session:
             session.exec(delete(User).where(User.email == unique_test_email))
             session.commit()
-            print(f"🗑️ Deleted test user: {unique_test_email}")
+
+
+def reset_rate_limiter():
+    """Clears all in-memory rate limit records instantly."""
+    for key in list(limiter.limiter._storage.storage.keys()):
+        limiter.limiter._storage.storage.pop(key, None)
+
+def test_register_rate_limit(client):
+    """Test that the register endpoint enforces the 10 req per 1h limit per IP."""
+
+    unique_email_base = f"testuser+{uuid.uuid4().hex}"
+    test_users = []
+
+    reset_rate_limiter()
+
+    for i in range(10):
+        unique_email = f"{unique_email_base}+{i}@example.com"
+        test_user = {"email": unique_email, "password": "TestPassword123!"}
+
+        response = client.post("/auth/register", json=test_user)
+        assert response.status_code == 201, f"Failed at request {i+1} - {response.json()}"
+        test_users.append(unique_email)
+
+    unique_email = f"{unique_email_base}+blocked@example.com"
+    test_user = {"email": unique_email, "password": "TestPassword123!"}
+
+    response = client.post("/auth/register", json=test_user)
+    assert response.status_code == 429
+
+    reset_rate_limiter()
+
+    unique_email = f"{unique_email_base}+reset@example.com"
+    test_user = {"email": unique_email, "password": "TestPassword123!"}
+    test_users.append(unique_email)
+
+
+    response = client.post("/auth/register", json=test_user)
+    assert response.status_code == 201, f"Rate limiter did not reset - {response.json()}"
+
+    with Session(engine) as session:
+        for email in test_users:
+            session.exec(delete(User).where(User.email == email))
+        session.commit()
+        print(f"🗑️ Deleted test users: {test_users}")
