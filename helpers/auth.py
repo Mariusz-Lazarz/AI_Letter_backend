@@ -32,3 +32,7 @@ def sign_jwt(data: dict, expires_in: int = 3600):
     encoded = jwt.encode(payload=payload, key=JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded
 
+
+def verify_jwt(token: str):
+    """Decodes and verifies a JWT token using the secret key and algorithm."""
+    return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])

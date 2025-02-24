@@ -49,20 +49,21 @@ def override_db():
 def test_user():
     """Fixture to create a test user for login and CRUD tests, then remove it after."""
     unique_test_email = f"testuser+{uuid.uuid4().hex}@example.com"
-    test_password = "TestPassword123!" 
-    verification_token = sign_jwt({"email": unique_test_email})
-    hashed_password = hash_password(test_password) 
-    
+    test_password = "TestPassword123!"  
+    verification_token = sign_jwt({"email": unique_test_email})  
+    hashed_password = hash_password(test_password)  
 
     user = User(email=unique_test_email, password_hash=hashed_password, verification_token=verification_token)
 
-    with Session(engine) as session:
-        session.add(user)
-        session.commit()
-        session.refresh(user)
+    try:
+        with Session(engine) as session:
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+        
+        yield {"email": unique_test_email, "password": test_password, "verification_token": verification_token}
 
-    yield {"email": unique_test_email, "password": test_password}
-
-    with Session(engine) as session:
-        session.exec(delete(User).where(User.email == unique_test_email))
-        session.commit()
+    finally:
+        with Session(engine) as session:
+            session.exec(delete(User).where(User.email == unique_test_email))
+            session.commit()

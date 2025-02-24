@@ -13,7 +13,6 @@ SMTP_PASS = os.getenv("SMTP_PASS")
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = os.getenv("SMTP_PORT")
 
-
-
 # RATE LIMITS
 RATE_LIMIT_REGISTER = "10/hour"
+RATE_LIMIT_VERIFY = "10/hour"

@@ -50,7 +50,7 @@ def test_account_confirmation(email_sender, to_email, verification_token):
             to_email=to_email,
             subject="Confirm Your Account",
             template_name="account_confirmation",
-            context={"verification_link": f"{BASE_DOMAIN}/verify?token={verification_token}"}
+            context={"verification_link": f"{BASE_DOMAIN}/auth/verify?token={verification_token}"}
         )
 
 @pytest.fixture

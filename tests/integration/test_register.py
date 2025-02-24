@@ -7,7 +7,6 @@ from database import engine
 from models.user import User
 import time
 from routers.auth import limiter
-from config import RATE_LIMIT_REGISTER
 
 def test_register_user(client):
     """Test the user registration API using a real database (with cleanup)."""

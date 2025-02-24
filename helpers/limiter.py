@@ -8,6 +8,7 @@ class RateLimiterService:
             key_func=get_remote_address,
         )
 
-    def limit(self, limit_string: str):
-        """Decorator to apply rate limiting with a specified limit."""
-        return self.limiter.limit(limit_string)
+    def limit(self, limit_string: str, key_func=None):
+        """Decorator to apply rate limiting with a specified limit and custom key function."""
+        return self.limiter.limit(limit_string, key_func=key_func)
+
