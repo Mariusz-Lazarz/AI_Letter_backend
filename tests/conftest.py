@@ -51,7 +51,7 @@ def test_user():
     unique_test_email = f"testuser+{uuid.uuid4().hex}@example.com"
     test_password = "TestPassword123!"  
     verification_token = sign_jwt({"email": unique_test_email})  
-    hashed_password = hash_password(test_password)  
+    hashed_password = hash_password(test_password)
 
     user = User(email=unique_test_email, password_hash=hashed_password, verification_token=verification_token)
 
@@ -62,6 +62,34 @@ def test_user():
             session.refresh(user)
         
         yield {"email": unique_test_email, "password": test_password, "verification_token": verification_token}
+
+    finally:
+        with Session(engine) as session:
+            session.exec(delete(User).where(User.email == unique_test_email))
+            session.commit()
+
+@pytest.fixture(scope="module")
+def verified_test_user():
+    """Fixture to create a verified test user for testing behavior after verification."""
+    unique_test_email = f"verifieduser+{uuid.uuid4().hex}@example.com"
+    test_password = "VerifiedTestPassword123!"  
+    verification_token = sign_jwt({"email": unique_test_email})  
+    hashed_password = hash_password(test_password)
+
+    user = User(
+        email=unique_test_email,
+        password_hash=hashed_password,
+        verification_token="",
+        is_verified=True 
+    )
+
+    try:
+        with Session(engine) as session:
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+        
+        yield {"email": unique_test_email, "password": test_password}
 
     finally:
         with Session(engine) as session:

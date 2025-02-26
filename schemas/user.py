@@ -1,17 +1,11 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, EmailStr, field_validator
 import re
 
-class UserCreate(BaseModel):
-    email: str
-    password: str
+class UserBase(BaseModel):
+    email: EmailStr
 
-    @field_validator("email")
-    def validate_email(cls, value):
-        """Custom email validation to match frontend logic"""
-        email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-        if not re.match(email_regex, value):
-            raise ValueError("Invalid email format")
-        return value
+class UserCreate(UserBase):
+    password: str
 
     @field_validator("password")
     def validate_password(cls, value):
