@@ -14,7 +14,20 @@ def hash_password(password: str):
         bytes: The hashed password as a bcrypt hash.
     """
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt(BCRYPT_SALT))
-    return password_hash
+    return password_hash.decode()
+
+def compare_password(input_password, user_db_password):
+    """
+    Comapres password using bcrypt.
+
+    Args:
+        input_password (str): The hashed input password.
+        user_db_password (str): The hashed password to be compared with the input
+
+    Returns:
+        boolean: If password is True then True else False.
+    """
+    return bcrypt.checkpw(input_password.encode(), user_db_password.encode())
 
 def sign_jwt(data: dict, expires_in: int = 3600):
     """

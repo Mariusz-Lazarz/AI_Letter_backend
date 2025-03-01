@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, Request, Query, HTTPException
-from schemas.user import UserCreate, UserBase
+from fastapi import APIRouter, Depends, Request, Query, HTTPException, Response
+from schemas.user import UserCreate, UserBase, UserLogin
 from models.user import User
 from database import SessionDep
-from helpers.auth import hash_password, sign_jwt, verify_jwt
+from helpers.auth import hash_password, sign_jwt, verify_jwt, compare_password
 from helpers.email_sender import EmailSender
 from helpers.limiter import RateLimiterService
-from config import RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY
+from config import JWT_ACCESS_TOKEN, JWT_REFRESH_EXPIRE, RATE_LIMIT_LOGIN, RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY
 from sqlmodel import select
 from helpers.logger import AppLogger
 
@@ -96,6 +96,39 @@ async def resend_verification_token(request: Request, session: SessionDep, user_
             logger.warning(f"⚠️ Email failed for {user_data.email}.")
 
         return {"data": {"message": "Verification email sent successfully"}}
+    except HTTPException as e:
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.log_exception(f"Verification failed for {user_data.email}: {e}")
+        raise
+
+@router.post("/login", status_code=200)
+@limiter.limit(RATE_LIMIT_LOGIN)
+async def login(request: Request,response: Response,  session: SessionDep, user_data: UserLogin):
+    try:
+        statement = select(User).where(User.email == user_data.email)
+        user = session.exec(statement).first()
+
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        checked_password = compare_password(user_data.password, user.password_hash)
+        
+        if not checked_password:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        if not user.is_verified:
+            raise HTTPException(
+                status_code=403, 
+                detail="Account not verified. Please verify your email or request a new verification link."
+            )
+
+        
+        refresh_token = sign_jwt({"id": user.id, "email": user.email}, JWT_REFRESH_EXPIRE)
+        access_token = sign_jwt({"id": user.id, "email": user.email}, JWT_ACCESS_TOKEN)
+        response.set_cookie(key="refresh_token", value=refresh_token, max_age=JWT_REFRESH_EXPIRE, httponly=True, secure=True, samesite="strict")
+        return {"data": {"token": access_token}}
     except HTTPException as e:
         raise
     except Exception as e:
