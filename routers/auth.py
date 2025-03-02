@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Query, HTTPException, Response
+from fastapi import APIRouter, Request, HTTPException, Response, BackgroundTasks
 from schemas.user import UserCreate, UserBase, UserLogin
 from models.user import User
 from database import SessionDep
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/auth")
 
 @router.post("/register", status_code=201)
 @limiter.limit(RATE_LIMIT_REGISTER)
-async def register(request: Request, user_data: UserCreate, session: SessionDep):
+async def register(request: Request, user_data: UserCreate, session: SessionDep, background_tasks: BackgroundTasks):
     try:
         verification_token = sign_jwt({"email": user_data.email}, expires_in=(ACCOUNT_CONFIRMATION_TOKEN))
         password_hash = hash_password(user_data.password)
@@ -27,9 +27,7 @@ async def register(request: Request, user_data: UserCreate, session: SessionDep)
         session.commit()
         session.refresh(user)
 
-        email_sent = email_sender.account_confirmation(to_email=user.email, verification_token=verification_token)
-        if not email_sent:
-            logger.log_warning(f"⚠️ Email failed for {user.email}. User was created.")
+        background_tasks.add_task(email_sender.account_confirmation, to_email=user.email, verification_token=verification_token)
 
         return {"data": {"message": "User created successfully"}}     
     except:
@@ -73,7 +71,7 @@ async def verify(request: Request, session: SessionDep,  token: str):
 
 @router.post("/resend-verification-token", status_code=200)
 @limiter.limit(RATE_LIMIT_RESEND_VERIFY)
-async def resend_verification_token(request: Request, session: SessionDep, user_data: UserBase):
+async def resend_verification_token(request: Request, session: SessionDep, user_data: UserBase, background_tasks: BackgroundTasks):
     try:
         statement = select(User).where(User.email == user_data.email)
         user = session.exec(statement).first()
@@ -91,9 +89,7 @@ async def resend_verification_token(request: Request, session: SessionDep, user_
         session.commit()
         session.refresh(user)
 
-        email_sent = email_sender.account_confirmation(to_email=user_data.email, verification_token=verification_token)
-        if not email_sent:
-            logger.warning(f"⚠️ Email failed for {user_data.email}.")
+        background_tasks.add_task(email_sender.account_confirmation, to_email=user.email, verification_token=verification_token)
 
         return {"data": {"message": "Verification email sent successfully"}}
     except HTTPException as e:
