@@ -15,7 +15,8 @@ async def test_login_success(client, verified_test_user):
 
     assert response.status_code == 200
     data = response.json()
-    assert "token" in data["data"]
+    assert "accessToken" in data["data"]
+    assert "csrfToken" in data["data"]
 
 @pytest.mark.asyncio
 async def test_login_wrong_email(client, verified_test_user):

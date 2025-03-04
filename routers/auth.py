@@ -8,6 +8,7 @@ from helpers.limiter import RateLimiterService
 from config import JWT_ACCESS_TOKEN, JWT_REFRESH_EXPIRE, RATE_LIMIT_LOGIN, RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY
 from sqlmodel import select
 from helpers.logger import AppLogger
+import uuid
 
 logger = AppLogger(log_file="app.log")
 
@@ -120,14 +121,20 @@ async def login(request: Request,response: Response,  session: SessionDep, user_
                 detail="Account not verified. Please verify your email or request a new verification link."
             )
 
+        csrfToken = str(uuid.uuid4())
         
-        refresh_token = sign_jwt({"id": user.id, "email": user.email}, JWT_REFRESH_EXPIRE)
+        refresh_token = sign_jwt({"id": user.id, "email": user.email, "csrfToken": csrfToken}, JWT_REFRESH_EXPIRE)
         access_token = sign_jwt({"id": user.id, "email": user.email}, JWT_ACCESS_TOKEN)
         response.set_cookie(key="refresh_token", value=refresh_token, max_age=JWT_REFRESH_EXPIRE, httponly=True, secure=True, samesite="strict")
-        return {"data": {"token": access_token}}
+        return {"data": {"accessToken": access_token, "csrfToken": csrfToken}}
     except HTTPException as e:
         raise
     except Exception as e:
         session.rollback()
         logger.log_exception(f"Verification failed for {user_data.email}: {e}")
         raise
+
+
+@router.get("/refresh-token", status_code=200)
+async def refresh_token(request: Request):
+    print(request.cookies)
