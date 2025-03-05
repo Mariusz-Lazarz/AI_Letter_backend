@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from helpers.logger import AppLogger
 import json
+from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 
 logger = AppLogger(log_file="app.log", logger_name="fastapi_app")
 
@@ -59,3 +60,16 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     logger.log_warning(exc)
     return JSONResponse(status_code=429, content={"errors": ["Too many request please try again later!"]})
+
+
+async def jwt_invalid_signature_handler(request: Request, exc: InvalidSignatureError):
+    logger.log_warning(f"Invalid JWT Signature at: {request.url}, token: {request.cookies.get('refresh_token')}")
+    return JSONResponse(status_code=401, content={"errors": ["Unauthorized"]})
+
+async def jwt_expired_signature_handler(request: Request, exc: ExpiredSignatureError):
+    logger.log_warning(f"Expired JWT Signature at: {request.url}, token: {request.cookies.get('refresh_token')}")
+    return JSONResponse(status_code=401, content={"errors": ["Unauthorized"]})
+
+async def jwt_malformed_token_handler(request: Request, exc: DecodeError):
+    logger.log_warning(f"Malformed Token at: {request.url}, token: {request.cookies.get('refresh_token')}")
+    return JSONResponse(status_code=401, content={"errors": ["Unauthorized"]})

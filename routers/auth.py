@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Request, HTTPException, Response, BackgroundTasks
 from schemas.user import UserCreate, UserBase, UserLogin
+import jwt
 from models.user import User
 from database import SessionDep
 from helpers.auth import hash_password, sign_jwt, verify_jwt, compare_password
 from helpers.email_sender import EmailSender
 from helpers.limiter import RateLimiterService
-from config import JWT_ACCESS_TOKEN, JWT_REFRESH_EXPIRE, RATE_LIMIT_LOGIN, RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY
+from config import JWT_ACCESS_TOKEN, JWT_REFRESH_EXPIRE, RATE_LIMIT_LOGIN, RATE_LIMIT_REFRESH_TOKEN, RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY
 from sqlmodel import select
 from helpers.logger import AppLogger
 import uuid
@@ -135,6 +136,34 @@ async def login(request: Request,response: Response,  session: SessionDep, user_
         raise
 
 
-@router.get("/refresh-token", status_code=200)
+@router.post("/refresh-token", status_code=200)
+@limiter.limit(RATE_LIMIT_REFRESH_TOKEN)
 async def refresh_token(request: Request):
-    print(request.cookies)
+   try:
+        refresh_token = request.cookies.get("refresh_token")
+
+        if not refresh_token:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        verified_token = verify_jwt(token=refresh_token)
+        csrf_token = verified_token.get("csrfToken")
+        csrf_header_token = request.headers.get("X-CSRF-Token")
+
+        if csrf_token != csrf_header_token:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        
+        id = verified_token.get("id")
+        email = verified_token.get("email")
+        
+        access_token = sign_jwt({"id": id, "email": email}, JWT_ACCESS_TOKEN)
+
+        return {"data": {"accessToken": access_token}}
+
+   except Exception as e:
+        raise
+
+
+
+
+
+
