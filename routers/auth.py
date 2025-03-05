@@ -154,7 +154,6 @@ async def refresh_token(request: Request):
         
         id = verified_token.get("id")
         email = verified_token.get("email")
-        
         access_token = sign_jwt({"id": id, "email": email}, JWT_ACCESS_TOKEN)
 
         return {"data": {"accessToken": access_token}}
@@ -162,7 +161,19 @@ async def refresh_token(request: Request):
    except Exception as e:
         raise
 
+@router.post("/logout", status_code=204)
+async def logout(request: Request, response: Response):
+    try:
+        refresh_token = request.cookies.get("refresh_token")
 
+        if not refresh_token:
+            raise HTTPException(status_code=403, detail="Forbidden")
+        
+        response.delete_cookie("refresh_token")
+    
+    except Exception as e:
+        raise
+    
 
 
 
