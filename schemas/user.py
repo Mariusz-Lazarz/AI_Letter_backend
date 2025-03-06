@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 import re
 
 class UserBase(BaseModel):
@@ -6,6 +6,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    confirm_password: str
 
     @field_validator("password")
     def validate_password(cls, value):
@@ -22,7 +23,13 @@ class UserCreate(UserBase):
             raise ValueError("Password must contain at least one special character")
         return value
 
-class UserLogin(UserCreate):
-    pass
+    @model_validator(mode="after")
+    def validate_passwords_match(self):
+        """Ensure password and confirm_password match."""
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
 
+class UserLogin(UserBase):
+    password: str
 

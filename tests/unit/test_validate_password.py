@@ -16,7 +16,7 @@ def test_user_create_password_validation(password, expected_exception, expected_
     """Test password validation in UserCreate model."""
     if expected_exception:
         with pytest.raises(expected_exception, match=expected_message):
-            UserCreate(email="valid.email@example.com", password=password)
+            UserCreate(email="valid.email@example.com", password=password, confirm_password=password)
     else:
-        user = UserCreate(email="valid.email@example.com", password=password)
+        user = UserCreate(email="valid.email@example.com", password=password, confirm_password=password)
         assert user.password == password

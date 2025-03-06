@@ -15,7 +15,8 @@ def test_register_user(client):
 
     test_user = {
         "email": unique_test_email,
-        "password": "TestPassword123!"
+        "password": "TestPassword123!",
+        "confirm_password": "TestPassword123!"
     }
 
     try:
@@ -41,7 +42,8 @@ def test_register_existing_user(client, test_user):
     
     test_user_data = {
         "email": test_user["email"],
-        "password": "NewTestPassword!"
+        "password": "NewTestPassword!",
+        "confirm_password": "NewTestPassword!"
     }
 
     response = client.post("/auth/register", json=test_user_data)
@@ -55,7 +57,8 @@ def test_register_email_sent(client, email_sender):
 
     test_user = {
         "email": unique_test_email,
-        "password": "TestPassword123!"
+        "password": "TestPassword123!",
+        "confirm_password": "TestPassword123!"
     }
 
     with patch("routers.auth.email_sender", email_sender):
@@ -88,7 +91,8 @@ def test_user_persisted_after_registration(client):
 
     test_user = {
         "email": unique_test_email,
-        "password": "TestPassword123!"
+        "password": "TestPassword123!",
+        "confirm_password": "TestPassword123!"
     }
 
     client.post("/auth/register", json=test_user)
@@ -118,14 +122,14 @@ def test_register_rate_limit(client):
 
     for i in range(10):
         unique_email = f"{unique_email_base}+{i}@example.com"
-        test_user = {"email": unique_email, "password": "TestPassword123!"}
+        test_user = {"email": unique_email, "password": "TestPassword123!", "confirm_password": "TestPassword123!"}
 
         response = client.post("/auth/register", json=test_user)
         assert response.status_code == 201, f"Failed at request {i+1} - {response.json()}"
         test_users.append(unique_email)
 
     unique_email = f"{unique_email_base}+blocked@example.com"
-    test_user = {"email": unique_email, "password": "TestPassword123!"}
+    test_user = {"email": unique_email, "password": "TestPassword123!", "confirm_password": "TestPassword123!"}
 
     response = client.post("/auth/register", json=test_user)
     assert response.status_code == 429
@@ -133,7 +137,7 @@ def test_register_rate_limit(client):
     reset_rate_limiter()
 
     unique_email = f"{unique_email_base}+reset@example.com"
-    test_user = {"email": unique_email, "password": "TestPassword123!"}
+    test_user = {"email": unique_email, "password": "TestPassword123!", "confirm_password": "TestPassword123!"}
     test_users.append(unique_email)
 
 
