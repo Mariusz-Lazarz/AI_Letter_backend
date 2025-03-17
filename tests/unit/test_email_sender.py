@@ -15,7 +15,7 @@ def email_sender():
 @pytest.mark.parametrize(
     "template_name, context, expected_found",
     [
-        ("account_confirmation", {"verification_link": "https://example.com"}, True),  
+        ("account_confirmation", {"verification_link": "https://example.com"}, True),
         ("missing_template", {}, False), 
     ]
 )
@@ -36,22 +36,23 @@ def test_load_template(email_sender, template_name, context, expected_found):
         assert result is None  
 
 @pytest.mark.parametrize(
-    "to_email, verification_token",
+    "to_email, token, url_suffix, method_name, subject, template_name",
     [
-        ("user@example.com", "fake_token_123"), 
+        ("user@example.com", "fake_token_123", "/auth/verify?token=", "account_confirmation", "Confirm Your Account", "account_confirmation"),
+        ("user@example.com", "fake_token_123", "/auth/reset-password?token=", "forgot_password", "Forgot Your Password", "forgot_password"),
     ]
 )
-def test_account_confirmation(email_sender, to_email, verification_token):
-    """Test account confirmation email sending."""
+def test_email_sending(email_sender, to_email, token, url_suffix, method_name, subject, template_name):
+    """Test email sending for various scenarios."""
     with patch.object(email_sender, "send_email") as mock_send_email:
-        email_sender.account_confirmation(to_email, verification_token)
-
+        getattr(email_sender, method_name)(to_email, token)
         mock_send_email.assert_called_once_with(
             to_email=to_email,
-            subject="Confirm Your Account",
-            template_name="account_confirmation",
-            context={"verification_link": f"{BASE_DOMAIN}/auth/verify?token={verification_token}"}
+            subject=subject,
+            template_name=template_name,
+            context={"verification_link": f"{BASE_DOMAIN}{url_suffix}{token}"}
         )
+
 
 @pytest.fixture
 def email_sender():

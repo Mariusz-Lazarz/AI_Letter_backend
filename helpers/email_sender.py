@@ -77,6 +77,24 @@ class EmailSender:
         template_name="account_confirmation",
         context={"verification_link": f"{BASE_DOMAIN}/auth/verify?token={verification_token}"}
         )
+    
+    def forgot_password(self, to_email: str, password_reset_token: str):
+        """
+        Sends an forgot password email.
+
+        Parameters:
+            to_email (str): The recipient's email address.
+            password_reset_token (str): A JWT token for email verification.
+
+        Returns:
+            None
+        """
+        return self.send_email(
+        to_email=to_email,
+        subject="Forgot Your Password",
+        template_name="forgot_password",
+        context={"verification_link": f"{BASE_DOMAIN}/auth/reset-password?token={password_reset_token}"}
+        )
 
     def close_connection(self):
         """Close SMTP connection"""

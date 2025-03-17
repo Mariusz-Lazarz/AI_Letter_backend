@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Request, HTTPException, Response, BackgroundTasks
-from schemas.user import UserCreate, UserBase, UserLogin
-import jwt
+from schemas.user import UserCreate, UserBase, UserLogin, UserPasswordReset
 from models.user import User
 from database import SessionDep
 from helpers.auth import hash_password, sign_jwt, verify_jwt, compare_password
 from helpers.email_sender import EmailSender
 from helpers.limiter import RateLimiterService
-from config import JWT_ACCESS_TOKEN, JWT_REFRESH_EXPIRE, RATE_LIMIT_LOGIN, RATE_LIMIT_REFRESH_TOKEN, RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY
+from config import JWT_ACCESS_TOKEN, JWT_REFRESH_EXPIRE, RATE_LIMIT_LOGIN, RATE_LIMIT_REFRESH_TOKEN, RATE_LIMIT_REGISTER, RATE_LIMIT_VERIFY, ACCOUNT_CONFIRMATION_TOKEN, RATE_LIMIT_RESEND_VERIFY, RESET_PASSWORD_TOKEN, RATE_LIMIT_FORGOT_PASSWORD, RATE_LIMIT_RESET_PASSWORD
 from sqlmodel import select
 from helpers.logger import AppLogger
 import uuid
@@ -58,7 +57,7 @@ async def verify(request: Request, session: SessionDep,  token: str):
 
         if not user.is_verified:
             user.is_verified = True
-            user.verification_token = ""
+            user.verification_token = None
             session.add(user)
             session.commit()
             session.refresh(user)
@@ -175,6 +174,49 @@ async def logout(request: Request, response: Response):
         raise
     
 
+@router.post("/forgot_password", status_code=201)
+@limiter.limit(RATE_LIMIT_FORGOT_PASSWORD)
+async def forgot_password(request: Request, session: SessionDep, user_data: UserBase, background_tasks: BackgroundTasks):
+    try:
+        statement = select(User).where(User.email == user_data.email)
+        user = session.exec(statement).first()
+        if user:
+            password_reset_token = sign_jwt({"email": user.email}, RESET_PASSWORD_TOKEN)
+            user.password_reset_token = password_reset_token
+            session.add(user)
+            session.commit()
+            background_tasks.add_task(email_sender.forgot_password, to_email=user.email, password_reset_token=password_reset_token)
+    except Exception as e:
+        raise
+    return {"data": {"message": "If an account is associated with this email, you will receive an email shortly."}} 
 
 
-
+@router.post("/reset_password", status_code=200)
+@limiter.limit(RATE_LIMIT_RESET_PASSWORD)
+async def reset_password(request: Request, session: SessionDep, user_data: UserPasswordReset):
+    try:
+        verified_token = verify_jwt(token=user_data.token)
+        
+        email = verified_token.get("email")
+        if not email:
+            raise HTTPException(status_code=400, detail="Invalid token: Email missing")
+            
+        statement = select(User).where(User.email == email)
+        user = session.exec(statement).first()
+        if not user or user.password_reset_token != user_data.token:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+            
+        password_hash = hash_password(user_data.password)
+        user.password_hash = password_hash
+        user.password_reset_token = None
+        session.add(user)
+        session.commit()
+        
+        return {"data": {"message": "Password reset successful"}}
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.log_exception(f"Password reset failed: {e}")
+        raise    
+    

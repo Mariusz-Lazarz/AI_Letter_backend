@@ -13,6 +13,7 @@ from sqlmodel import Session, select, delete
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from database import engine, get_session, create_db_and_tables
 from main import app
+from config import RESET_PASSWORD_TOKEN
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
@@ -73,13 +74,15 @@ def verified_test_user():
     """Fixture to create a verified test user for testing behavior after verification."""
     unique_test_email = f"verifieduser+{uuid.uuid4().hex}@example.com"
     test_password = "VerifiedTestPassword123!"  
-    verification_token = sign_jwt({"email": unique_test_email})  
+    verification_token = sign_jwt({"email": unique_test_email})
+    password_reset_token = sign_jwt({"email": unique_test_email}, RESET_PASSWORD_TOKEN)
     hashed_password = hash_password(test_password)
 
     user = User(
         email=unique_test_email,
         password_hash=hashed_password,
         verification_token="",
+        password_reset_token=password_reset_token,
         is_verified=True 
     )
 
@@ -89,7 +92,7 @@ def verified_test_user():
             session.commit()
             session.refresh(user)
         
-        yield {"email": unique_test_email, "password": test_password}
+        yield {"email": unique_test_email, "password": test_password, "password_reset_token": password_reset_token}
 
     finally:
         with Session(engine) as session:

@@ -4,10 +4,7 @@ import re
 class UserBase(BaseModel):
     email: EmailStr
 
-class UserCreate(UserBase):
-    password: str
-    confirm_password: str
-
+class PasswordValidationMixin:
     @field_validator("password")
     def validate_password(cls, value):
         """Password validation (matches frontend rules)"""
@@ -23,6 +20,7 @@ class UserCreate(UserBase):
             raise ValueError("Password must contain at least one special character")
         return value
 
+class PasswordMatchMixin:
     @model_validator(mode="after")
     def validate_passwords_match(self):
         """Ensure password and confirm_password match."""
@@ -30,6 +28,14 @@ class UserCreate(UserBase):
             raise ValueError("Passwords do not match")
         return self
 
+class UserCreate(UserBase, PasswordValidationMixin, PasswordMatchMixin):
+    password: str
+    confirm_password: str
+
 class UserLogin(UserBase):
     password: str
 
+class UserPasswordReset(BaseModel, PasswordValidationMixin, PasswordMatchMixin):
+    token: str
+    password: str
+    confirm_password: str
