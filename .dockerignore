@@ -1,0 +1,44 @@
+# Environment and local development
+.env
+*.env
+.env.*
+venv/
+.venv/
+env/
+.python-version
+.virtualenv/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Version control
+.git/
+.gitignore
+.github/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local development artifacts
+*.log
+logs/
+tmp/
+.DS_Store
+
+# Documentation
+docs/
+*.md
+LICENSE
