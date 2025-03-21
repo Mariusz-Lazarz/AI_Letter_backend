@@ -19,8 +19,18 @@ jobs:
         with:
           python-version: "3.10"
 
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
+
+      - name: Lint code
+        run: flake8 .
 
       - name: Create .env file
         run: |
@@ -36,15 +46,17 @@ jobs:
           echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
           echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
 
-      - name: Debug .env
-        run: cat .env
+      - name: Install docker-compose
+        run: |
+          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
+          -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
 
-      - name: Build and start docker containers
-        run: docker compose up -d
-
-      - name: Run tests in docker container
-        run: docker compose exec -T backend pytest
+      - name: Run tests
+        run: |
+          docker-compose -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from test
+          docker-compose -f docker-compose.test.yml down
 
       - name: Clean up
-        run: docker compose down
+        run: docker-compose -f docker-compose.test.yml down || true
         if: always()

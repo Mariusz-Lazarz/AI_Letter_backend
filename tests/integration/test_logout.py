@@ -1,14 +1,13 @@
 import pytest
 from helpers.auth import sign_jwt
-from config import JWT_REFRESH_EXPIRE
 
 
 @pytest.mark.asyncio
 async def test_logout_success(client, verified_test_user):
-    
+
     id = "123"
     email = verified_test_user["email"]
-    
+
     refresh_token = sign_jwt({"id": id, "email": email, "csrfToken": "abc"})
 
     client.cookies.set("refresh_token", refresh_token)

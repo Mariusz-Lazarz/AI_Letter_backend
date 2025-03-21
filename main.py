@@ -12,7 +12,9 @@ app.include_router(auth.router)
 
 app.add_exception_handler(RateLimitExceeded, errors.rate_limit_exceeded_handler)
 app.add_exception_handler(IntegrityError, errors.integrity_error_handler)
-app.add_exception_handler(RequestValidationError, errors.request_validation_error_handler)
+app.add_exception_handler(
+    RequestValidationError, errors.request_validation_error_handler
+)
 app.add_exception_handler(InvalidSignatureError, errors.jwt_invalid_signature_handler)
 app.add_exception_handler(ExpiredSignatureError, errors.jwt_expired_signature_handler)
 app.add_exception_handler(DecodeError, errors.jwt_malformed_token_handler)

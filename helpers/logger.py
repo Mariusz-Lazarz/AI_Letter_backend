@@ -1,6 +1,7 @@
 import logging
 import sys
 
+
 class AppLogger:
     """Centralized logging utility for FastAPI application."""
 
@@ -12,7 +13,9 @@ class AppLogger:
         if not self.logger.hasHandlers():
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setLevel(logging.INFO)
-            console_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+            console_format = logging.Formatter(
+                "%(asctime)s - %(levelname)s - %(message)s"
+            )
             console_handler.setFormatter(console_format)
             self.logger.addHandler(console_handler)
 
