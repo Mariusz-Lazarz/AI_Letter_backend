@@ -6,9 +6,9 @@
 #     [
 #         ("valid.email@example.com", None, None),
 #         ("invalid-email.com", ValueError, "Invalid email format"),
-#         ("@example.com", ValueError, "Invalid email format"), 
+#         ("@example.com", ValueError, "Invalid email format"),
 #         ("user@@example.com", ValueError, "Invalid email format"),
-#         ("user@example", ValueError, "Invalid email format"), 
+#         ("user@example", ValueError, "Invalid email format"),
 #         ("user@.com", ValueError, "Invalid email format"),
 #     ]
 # )

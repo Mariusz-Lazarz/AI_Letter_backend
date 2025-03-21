@@ -3,6 +3,7 @@ import datetime
 import jwt
 from config import BCRYPT_SALT, JWT_SECRET, JWT_ALGORITHM
 
+
 def hash_password(password: str):
     """
     Hashes a password using bcrypt.
@@ -15,6 +16,7 @@ def hash_password(password: str):
     """
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt(BCRYPT_SALT))
     return password_hash.decode()
+
 
 def compare_password(input_password, user_db_password):
     """
@@ -29,6 +31,7 @@ def compare_password(input_password, user_db_password):
     """
     return bcrypt.checkpw(input_password.encode(), user_db_password.encode())
 
+
 def sign_jwt(data: dict, expires_in: int = 3600):
     """
     Generates a JSON Web Token (JWT) for the given data with an expiration time.
@@ -40,7 +43,9 @@ def sign_jwt(data: dict, expires_in: int = 3600):
     Returns:
         str: The encoded JWT string.
     """
-    exp_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=expires_in)
+    exp_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+        seconds=expires_in
+    )
     payload = {**data, "exp": exp_time}
     encoded = jwt.encode(payload=payload, key=JWT_SECRET, algorithm=JWT_ALGORITHM)
     return encoded

@@ -1,8 +1,10 @@
 from pydantic import BaseModel, EmailStr, field_validator, model_validator
 import re
 
+
 class UserBase(BaseModel):
     email: EmailStr
+
 
 class PasswordValidationMixin:
     @field_validator("password")
@@ -20,6 +22,7 @@ class PasswordValidationMixin:
             raise ValueError("Password must contain at least one special character")
         return value
 
+
 class PasswordMatchMixin:
     @model_validator(mode="after")
     def validate_passwords_match(self):
@@ -28,12 +31,15 @@ class PasswordMatchMixin:
             raise ValueError("Passwords do not match")
         return self
 
+
 class UserCreate(UserBase, PasswordValidationMixin, PasswordMatchMixin):
     password: str
     confirm_password: str
 
+
 class UserLogin(UserBase):
     password: str
+
 
 class UserPasswordReset(BaseModel, PasswordValidationMixin, PasswordMatchMixin):
     token: str

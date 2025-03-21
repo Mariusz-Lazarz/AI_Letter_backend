@@ -2,11 +2,11 @@ import smtplib
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from config import SMTP_PASS, SMTP_HOST, SMTP_PORT, SMTP_USER
+from config import SMTP_PASS, SMTP_HOST, SMTP_PORT, SMTP_USER, BASE_DOMAIN
 from helpers.logger import AppLogger
-from config import SMTP_USER, BASE_DOMAIN
 
 logger = AppLogger(log_file="email.log", logger_name="email_service")
+
 
 class EmailSender:
     def __init__(self):
@@ -23,7 +23,7 @@ class EmailSender:
     def load_template(self, template_name, context):
         """Loads an HTML email template and fills placeholders with actual data."""
         template_path = os.path.join("email_templates", f"{template_name}.html")
-        
+
         try:
             with open(template_path, "r", encoding="utf-8") as file:
                 template = file.read()
@@ -44,7 +44,7 @@ class EmailSender:
 
         html_content = self.load_template(template_name, context)
         if not html_content:
-            return False 
+            return False
 
         msg = MIMEMultipart()
         msg["From"] = SMTP_USER
@@ -58,8 +58,8 @@ class EmailSender:
             return True
         except Exception as e:
             logger.log_exception(f"❌ Failed to send email to {to_email}: {e}")
-            return False 
-        
+            return False
+
     def account_confirmation(self, to_email: str, verification_token: str):
         """
         Sends an account confirmation email.
@@ -72,12 +72,14 @@ class EmailSender:
             None
         """
         return self.send_email(
-        to_email=to_email,
-        subject="Confirm Your Account",
-        template_name="account_confirmation",
-        context={"verification_link": f"{BASE_DOMAIN}/auth/verify?token={verification_token}"}
+            to_email=to_email,
+            subject="Confirm Your Account",
+            template_name="account_confirmation",
+            context={
+                "verification_link": f"{BASE_DOMAIN}/auth/verify?token={verification_token}"
+            },
         )
-    
+
     def forgot_password(self, to_email: str, password_reset_token: str):
         """
         Sends an forgot password email.
@@ -90,10 +92,12 @@ class EmailSender:
             None
         """
         return self.send_email(
-        to_email=to_email,
-        subject="Forgot Your Password",
-        template_name="forgot_password",
-        context={"verification_link": f"{BASE_DOMAIN}/auth/reset-password?token={password_reset_token}"}
+            to_email=to_email,
+            subject="Forgot Your Password",
+            template_name="forgot_password",
+            context={
+                "verification_link": f"{BASE_DOMAIN}/auth/reset-password?token={password_reset_token}"
+            },
         )
 
     def close_connection(self):
@@ -102,16 +106,15 @@ class EmailSender:
             self.server.quit()
             logger.log_info("🔌 SMTP connection closed.")
 
+
 if __name__ == "__main__":
     email_sender = EmailSender()
 
     success = email_sender.send_email(
         to_email=SMTP_USER,
         subject="Test email",
-        template_name="account_confirmation", 
-        context={
-            "verification_link": "https://yourwebsite.com/verify?token=abc123"
-        }
+        template_name="account_confirmation",
+        context={"verification_link": "https://yourwebsite.com/verify?token=abc123"},
     )
 
     email_sender.close_connection()
