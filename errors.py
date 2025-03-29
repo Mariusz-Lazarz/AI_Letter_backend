@@ -10,6 +10,7 @@ from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 
 logger = AppLogger(log_file="app.log", logger_name="fastapi_app")
 
+
 def build_response(errors, status_code):
     return JSONResponse(status_code=status_code, content={"errors": errors})
 
@@ -71,9 +72,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         logger.log_error(f"HTTP Exception at {request.url}: {exc.detail}")
     else:
         logger.log_warning(f"HTTP Exception at {request.url}: {exc.detail}")
-
     return build_response(errors=exc.detail, status_code=exc.status_code)
-    
 
 
 async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
