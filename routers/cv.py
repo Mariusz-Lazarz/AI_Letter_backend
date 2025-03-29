@@ -3,16 +3,21 @@ import uuid
 import urllib.parse
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Request
 from sqlmodel import select
+from config import RATE_LIMIT_UPLOAD_CV
 from database import SessionDep
 from middleware.verify_user import verify_token
 from services.s3 import upload_to_s3
 from models.user import User, UserCV
 from helpers.validate_upload_file import validate_upload_file
+from helpers.limiter import RateLimiterService
+
+limiter = RateLimiterService()
 
 router = APIRouter(prefix="/cv", dependencies=[Depends(verify_token)])
 
 
 @router.post("/upload-cv", status_code=200)
+@limiter.limit(RATE_LIMIT_UPLOAD_CV)
 async def upload_file(request: Request, session: SessionDep, file: UploadFile = File(...), user=Depends(verify_token)):
     try:
         content = await validate_upload_file(file)
