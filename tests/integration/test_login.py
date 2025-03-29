@@ -29,7 +29,7 @@ async def test_login_wrong_email(client, verified_test_user):
 
     assert response.status_code == 401
     data = response.json()
-    assert data["errors"][0] == "Invalid email or password"
+    assert data["errors"] == "Invalid email or password"
 
 
 @pytest.mark.asyncio
@@ -45,6 +45,6 @@ async def test_login_not_verified_user(client, test_user):
     assert response.status_code == 403
     data = response.json()
     assert (
-        data["errors"][0]
+        data["errors"]
         == "Account not verified. Please verify your email or request a new verification link."
     )

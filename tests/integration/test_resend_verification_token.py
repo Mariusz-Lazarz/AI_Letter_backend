@@ -22,7 +22,7 @@ async def test_resend_token_invalid_email(client, test_user):
 
     assert response.status_code == 404
     data = response.json()
-    assert data["errors"][0] == "User not found"
+    assert data["errors"] == "User not found"
 
 
 @pytest.mark.asyncio

@@ -32,7 +32,7 @@ async def test_no_refresh_token(client):
 
     assert response.status_code == 401
     data = response.json()
-    assert data["errors"][0] == "Unauthorized"
+    assert data["errors"] == "Unauthorized"
 
 
 @pytest.mark.asyncio
@@ -56,4 +56,4 @@ async def test_csrf_token_dont_match(client, verified_test_user):
 
     assert response.status_code == 401
     data = response.json()
-    assert data["errors"][0] == "Unauthorized"
+    assert data["errors"] == "Unauthorized"

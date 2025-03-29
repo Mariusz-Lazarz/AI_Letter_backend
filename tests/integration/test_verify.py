@@ -25,7 +25,7 @@ async def test_verify_missing_email(client):
 
     assert response.status_code == 400
     data = response.json()
-    assert data["errors"][0] == "Failed to verify user"
+    assert data["errors"] == "Failed to verify user"
 
 
 @pytest.mark.asyncio
@@ -36,7 +36,7 @@ async def test_user_not_found(client):
 
     assert response.status_code == 400
     data = response.json()
-    assert data["errors"][0] == "Failed to verify user"
+    assert data["errors"] == "Failed to verify user"
 
 
 @pytest.mark.asyncio
@@ -49,7 +49,7 @@ async def test_verify_token_mismatch(client, test_user):
 
     assert response.status_code == 400
     data = response.json()
-    assert data["errors"][0] == "Failed to verify user"
+    assert data["errors"] == "Failed to verify user"
 
 
 @pytest.mark.asyncio
@@ -62,4 +62,4 @@ async def test_verify_expired_token(client, test_user):
 
     assert response.status_code == 400
     data = response.json()
-    assert data["errors"][0] == "Failed to verify user"
+    assert data["errors"] == "Failed to verify user"
