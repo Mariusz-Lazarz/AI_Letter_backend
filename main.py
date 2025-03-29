@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from sqlalchemy.exc import IntegrityError
 from fastapi.exceptions import RequestValidationError
-from routers import auth
+from routers import auth, cv
 from slowapi.errors import RateLimitExceeded
 from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 import errors
@@ -9,6 +9,7 @@ import errors
 app = FastAPI()
 
 app.include_router(auth.router)
+app.include_router(cv.router)
 
 app.add_exception_handler(RateLimitExceeded, errors.rate_limit_exceeded_handler)
 app.add_exception_handler(IntegrityError, errors.integrity_error_handler)
