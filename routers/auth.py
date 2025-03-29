@@ -240,6 +240,7 @@ async def logout(request: Request, response: Response):
 
         if not refresh_token:
             raise HTTPException(status_code=403, detail="Forbidden")
+        verify_jwt(token=refresh_token)
 
         response.delete_cookie("refresh_token")
 

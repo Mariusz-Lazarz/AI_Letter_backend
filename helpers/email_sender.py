@@ -54,10 +54,10 @@ class EmailSender:
 
         try:
             self.server.sendmail(SMTP_USER, to_email, msg.as_string())
-            logger.log_info(f"✅ Email sent to {to_email}")
+            logger.log_info(f"✅ {subject} email sent to {to_email}")
             return True
         except Exception as e:
-            logger.log_exception(f"❌ Failed to send email to {to_email}: {e}")
+            logger.log_exception(f"❌ {subject} failed to send email to {to_email}: {e}")
             return False
 
     def account_confirmation(self, to_email: str, verification_token: str):

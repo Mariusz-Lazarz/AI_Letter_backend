@@ -206,7 +206,7 @@ async def test_http_exception_handler(status_code, detail, log_method):
     exc = HTTPException(status_code=status_code, detail=detail)
 
     expected_message = f"HTTP Exception at {request.url}: {exc.detail}"
-    expected_response = {"errors": [detail]}
+    expected_response = {"errors": detail}
 
     with patch.object(AppLogger, log_method) as mock_log:
         response = await http_exception_handler(request, exc)

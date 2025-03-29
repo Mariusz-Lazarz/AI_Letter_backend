@@ -27,4 +27,4 @@ async def test_logout_no_refresh_token(client):
 
     assert response.status_code == 403
     data = response.json()
-    assert data["errors"][0] == "Forbidden"
+    assert data["errors"] == "Forbidden"

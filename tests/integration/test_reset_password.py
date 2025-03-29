@@ -30,7 +30,7 @@ async def test_reset_password_no_email(client, verified_test_user):
     response = client.post("/auth/reset_password", json=test_user)
     assert response.status_code == 400
     data = response.json()
-    assert data["errors"][0] == "Invalid token: Email missing"
+    assert data["errors"] == "Invalid token: Email missing"
 
 
 @pytest.mark.asyncio
@@ -46,7 +46,7 @@ async def test_reset_password_no_user(client):
     response = client.post("/auth/reset_password", json=test_user)
     assert response.status_code == 401
     data = response.json()
-    assert data["errors"][0] == "Unauthorized"
+    assert data["errors"] == "Unauthorized"
 
 
 @pytest.mark.asyncio
@@ -64,4 +64,4 @@ async def test_reset_password_wrong_token(client, verified_test_user):
     response = client.post("/auth/reset_password", json=test_user)
     assert response.status_code == 401
     data = response.json()
-    assert data["errors"][0] == "Unauthorized"
+    assert data["errors"] == "Unauthorized"
