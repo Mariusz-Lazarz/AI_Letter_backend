@@ -2,14 +2,13 @@ import pytest
 import sys
 import os
 import uuid
-from database import engine
 from unittest.mock import MagicMock
 from models.user import User
 from helpers.auth import hash_password, sign_jwt
 from helpers.email_sender import EmailSender
 from fastapi.testclient import TestClient
 from sqlmodel import Session, delete
-from database import get_session, create_db_and_tables
+from database import create_db_and_tables, engine
 from main import app
 from config import RESET_PASSWORD_TOKEN
 
@@ -37,19 +36,6 @@ def email_sender():
     mock_sender.account_confirmation.return_value = True
 
     return mock_sender
-
-
-@pytest.fixture
-def override_db():
-    """Override database session for integration tests (without wiping data)."""
-
-    def _override_get_session():
-        with Session(engine) as session:
-            yield session
-
-    app.dependency_overrides[get_session] = _override_get_session
-    yield
-    app.dependency_overrides.clear()
 
 
 @pytest.fixture(scope="module")
@@ -107,6 +93,7 @@ def verified_test_user():
             session.refresh(user)
 
         yield {
+            "id": user.id,
             "email": unique_test_email,
             "password": test_password,
             "password_reset_token": password_reset_token,
