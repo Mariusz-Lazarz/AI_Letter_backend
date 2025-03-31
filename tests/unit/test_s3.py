@@ -1,6 +1,6 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from services.s3 import upload_to_s3
+
 
 @patch("services.s3.get_s3_client")
 def test_upload_to_s3_success(mock_get_s3_client):

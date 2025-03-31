@@ -1,4 +1,3 @@
-import os
 from sqlmodel import SQLModel, Session, create_engine
 from fastapi import Depends
 from typing import Annotated

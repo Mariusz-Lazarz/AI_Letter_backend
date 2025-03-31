@@ -7,6 +7,7 @@ from helpers.auth import sign_jwt
 from config import JWT_ACCESS_TOKEN
 import io
 
+
 def delete_s3_file(s3_key: str):
     s3 = boto3.client("s3")
     s3.delete_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
@@ -60,6 +61,3 @@ def test_upload_cv_fail(client, verified_test_user):
 
     assert response.status_code == 400
     assert response.json() == {"errors": "Only PDF files are allowed."}
-
-
-

@@ -31,14 +31,12 @@ async def upload_file(request: Request, session: SessionDep, file: UploadFile = 
         uploaded_file = upload_to_s3(content, s3_key, "application/pdf", tagging_str)
 
         if not uploaded_file:
-            raise HTTPException(status_code=502, detail=f"Failed to upload a file")
-        
+            raise HTTPException(status_code=502, detail="Failed to upload a file")
         statement = select(User).where(User.email == user["email"])
         db_user = session.exec(statement).first()
 
         if db_user is None:
             raise HTTPException(status_code=404, detail="User not found")
-        
         user_cv = UserCV(
             id=file_uuid,
             user_id=user["id"],
@@ -48,8 +46,6 @@ async def upload_file(request: Request, session: SessionDep, file: UploadFile = 
 
         session.add(user_cv)
         session.commit()
-
-
         return {
             "message": "CV uploaded successfully",
         }

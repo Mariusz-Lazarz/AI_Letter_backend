@@ -2,9 +2,10 @@ from fastapi import UploadFile, HTTPException
 from config import ALLOWED_MIME_TYPES, MAX_FILE_SIZE_MB
 import magic
 
+
 async def validate_upload_file(file: UploadFile):
     if file.content_type not in ALLOWED_MIME_TYPES:
-         raise HTTPException(
+        raise HTTPException(
             status_code=400,
             detail="Only PDF files are allowed.",
         )

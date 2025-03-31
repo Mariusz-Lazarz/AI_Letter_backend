@@ -8,7 +8,7 @@ from helpers.auth import hash_password, sign_jwt
 from helpers.email_sender import EmailSender
 from fastapi.testclient import TestClient
 from sqlmodel import Session, delete
-from database import get_session, create_db_and_tables, engine
+from database import create_db_and_tables, engine
 from main import app
 from config import RESET_PASSWORD_TOKEN
 

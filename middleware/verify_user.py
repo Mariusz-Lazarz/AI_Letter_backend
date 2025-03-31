@@ -4,6 +4,7 @@ from helpers.auth import verify_jwt
 
 security = HTTPBearer()
 
+
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
 

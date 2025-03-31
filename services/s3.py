@@ -5,13 +5,15 @@ from helpers.logger import AppLogger
 
 logger = AppLogger(log_file="s3.log", logger_name="s3_service")
 
+
 def get_s3_client():
     return boto3.client(
         "s3",
         aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         region_name=AWS_REGION,
-    ) 
+    )
+
 
 def upload_to_s3(file_bytes: bytes, key: str, content_type: str, tags: str):
     s3 = get_s3_client()
