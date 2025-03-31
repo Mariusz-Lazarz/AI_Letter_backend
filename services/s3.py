@@ -3,7 +3,7 @@ from config import AWS_ACCESS_KEY_ID, AWS_REGION, AWS_SECRET_ACCESS_KEY, S3_BUCK
 from botocore.exceptions import ClientError
 from helpers.logger import AppLogger
 
-logger = AppLogger(log_file="s3", logger_name="s3_service")
+logger = AppLogger(log_file="s3.log", logger_name="s3_service")
 
 def get_s3_client():
     return boto3.client(
