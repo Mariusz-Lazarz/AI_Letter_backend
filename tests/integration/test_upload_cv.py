@@ -24,7 +24,7 @@ def test_upload_cv_success(client, verified_test_user):
     headers = {"Authorization": f"Bearer {access_token}"}
 
     response = client.post(
-        "/cv/upload-cv",
+        "/cvs",
         files={"file": file},
         headers=headers
     )
@@ -54,7 +54,7 @@ def test_upload_cv_fail(client, verified_test_user):
     headers = {"Authorization": f"Bearer {access_token}"}
 
     response = client.post(
-        "/cv/upload-cv",
+        "/cvs",
         files={"file": file},
         headers=headers
     )

@@ -13,10 +13,10 @@ from helpers.limiter import RateLimiterService
 
 limiter = RateLimiterService()
 
-router = APIRouter(prefix="/cv", dependencies=[Depends(verify_token)])
+router = APIRouter(prefix="/cvs", dependencies=[Depends(verify_token)])
 
 
-@router.post("/upload-cv", status_code=200)
+@router.post("/", status_code=200)
 @limiter.limit(RATE_LIMIT_UPLOAD_CV)
 async def upload_file(request: Request, session: SessionDep, file: UploadFile = File(...), user=Depends(verify_token)):
     try:
