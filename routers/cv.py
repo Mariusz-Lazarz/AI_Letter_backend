@@ -1,6 +1,6 @@
-
 import uuid
 import urllib.parse
+from typing import List
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Request
 from sqlmodel import select
 from config import RATE_LIMIT_UPLOAD_CV
@@ -10,6 +10,8 @@ from services.s3 import upload_to_s3
 from models.user import User, UserCV
 from helpers.validate_upload_file import validate_upload_file
 from helpers.limiter import RateLimiterService
+from schemas.cv import CvListItem
+from schemas.base import DataResponse
 
 limiter = RateLimiterService()
 
@@ -53,3 +55,13 @@ async def upload_file(request: Request, session: SessionDep, file: UploadFile = 
     except Exception:
         session.rollback()
         raise
+
+
+@router.get("/", status_code=200, response_model=DataResponse[List[CvListItem]])
+async def get_cvs(request: Request, session: SessionDep, user=Depends(verify_token)):
+    statement = select(User).where(User.email == user["email"])
+    db_user = session.exec(statement).first()
+
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"data": db_user.cvs}
