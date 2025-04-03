@@ -3,7 +3,7 @@ import sys
 import os
 import uuid
 from unittest.mock import MagicMock
-from models.user import User
+from models.user import User, UserCV
 from helpers.auth import hash_password, sign_jwt
 from helpers.email_sender import EmailSender
 from fastapi.testclient import TestClient
@@ -72,34 +72,46 @@ def test_user():
 
 @pytest.fixture(scope="module")
 def verified_test_user():
-    """Fixture to create a verified test user for testing behavior after verification."""
+    """Fixture to create a verified test user with a CV for testing."""
     unique_test_email = f"verifieduser+{uuid.uuid4().hex}@example.com"
     test_password = "VerifiedTestPassword123!"
     password_reset_token = sign_jwt({"email": unique_test_email}, RESET_PASSWORD_TOKEN)
     hashed_password = hash_password(test_password)
 
-    user = User(
-        email=unique_test_email,
-        password_hash=hashed_password,
-        verification_token="",
-        password_reset_token=password_reset_token,
-        is_verified=True,
-    )
-
     try:
         with Session(engine) as session:
+            user = User(
+                email=unique_test_email,
+                password_hash=hashed_password,
+                verification_token="",
+                password_reset_token=password_reset_token,
+                is_verified=True,
+            )
+
             session.add(user)
             session.commit()
             session.refresh(user)
 
-        yield {
-            "id": user.id,
-            "email": unique_test_email,
-            "password": test_password,
-            "password_reset_token": password_reset_token,
-        }
+            user_cv = UserCV(
+                id=uuid.uuid4(),
+                user_id=user.id,
+                s3_key="some_key",
+                original_name="test_name",
+            )
+            session.add(user_cv)
+            session.commit()
+
+            user_data = {
+                "id": user.id,
+                "email": user.email,
+                "password": test_password,
+                "password_reset_token": password_reset_token,
+            }
+
+        yield user_data
 
     finally:
         with Session(engine) as session:
-            session.exec(delete(User).where(User.email == unique_test_email))
+            session.exec(delete(UserCV).where(UserCV.user_id == user_data["id"]))
+            session.exec(delete(User).where(User.email == user_data["email"]))
             session.commit()
