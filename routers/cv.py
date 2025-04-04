@@ -74,7 +74,7 @@ async def delete_cv(request: Request, session: SessionDep, id: str, user=Depends
 
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     user_cv = session.get(UserCV, id)
 
     if not user_cv:
@@ -84,6 +84,3 @@ async def delete_cv(request: Request, session: SessionDep, id: str, user=Depends
 
     session.delete(user_cv)
     session.commit()
-
-
-        

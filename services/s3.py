@@ -32,6 +32,7 @@ def upload_to_s3(file_bytes: bytes, key: str, content_type: str, tags: str):
 
     return True
 
+
 def delete_from_s3(key):
     s3 = get_s3_client()
     try:

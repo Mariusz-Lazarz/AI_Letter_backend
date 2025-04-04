@@ -17,6 +17,7 @@ def test_delete_cv_success(client, verified_test_user):
     response = client.delete("/cvs", headers=headers, params=params)
     assert response.status_code == 204
 
+
 def test_delete_cv_no_user(client, verified_test_user):
     access_token = sign_jwt(
         {"id": verified_test_user["id"], "email": "thisemaildoesnotexist@test.com"},
@@ -31,6 +32,7 @@ def test_delete_cv_no_user(client, verified_test_user):
     response = client.delete("/cvs", headers=headers, params=params)
     assert response.status_code == 404
     assert response.json() == {"errors": "User not found"}
+
 
 def test_delete_cv_no_cv(client, verified_test_user):
     access_token = sign_jwt(

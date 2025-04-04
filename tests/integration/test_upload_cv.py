@@ -1,7 +1,6 @@
 from models.user import UserCV
 from sqlmodel import select, delete, Session
 from database import engine
-from config import S3_BUCKET_NAME
 from helpers.auth import sign_jwt
 from config import JWT_ACCESS_TOKEN
 from services.s3 import delete_from_s3
@@ -36,7 +35,6 @@ def test_upload_cv_success(client, verified_test_user):
         assert uploaded_cv is not None
 
         print("Uploaded S3 Key:", uploaded_cv.s3_key)
-
 
         delete_from_s3(uploaded_cv.s3_key)
 

@@ -52,6 +52,7 @@ def test_delete_from_s3_success(mock_get_s3_client):
     mock_s3.delete_object.assert_called_once()
     assert result is True
 
+
 @patch("services.s3.get_s3_client")
 def test_delete_from_s3_client_error(mock_get_s3_client):
     from botocore.exceptions import ClientError
