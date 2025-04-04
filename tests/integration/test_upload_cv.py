@@ -1,16 +1,10 @@
 from models.user import UserCV
 from sqlmodel import select, delete, Session
 from database import engine
-import boto3
-from config import S3_BUCKET_NAME
 from helpers.auth import sign_jwt
 from config import JWT_ACCESS_TOKEN
+from services.s3 import delete_from_s3
 import io
-
-
-def delete_s3_file(s3_key: str):
-    s3 = boto3.client("s3")
-    s3.delete_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
 
 
 def test_upload_cv_success(client, verified_test_user):
@@ -33,11 +27,16 @@ def test_upload_cv_success(client, verified_test_user):
     assert response.json() == {"message": "CV uploaded successfully"}
 
     with Session(engine) as session:
-        stmt = select(UserCV).where(UserCV.user_id == verified_test_user["id"])
+        stmt = select(UserCV).where(
+            (UserCV.user_id == verified_test_user["id"]) &
+            (UserCV.original_name == "cv.pdf")
+        )
         uploaded_cv = session.exec(stmt).first()
         assert uploaded_cv is not None
 
-        delete_s3_file(uploaded_cv.s3_key)
+        print("Uploaded S3 Key:", uploaded_cv.s3_key)
+
+        delete_from_s3(uploaded_cv.s3_key)
 
         session.exec(delete(UserCV).where(UserCV.user_id == verified_test_user["id"]))
         session.commit()

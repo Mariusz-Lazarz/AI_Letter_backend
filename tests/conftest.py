@@ -106,6 +106,7 @@ def verified_test_user():
                 "email": user.email,
                 "password": test_password,
                 "password_reset_token": password_reset_token,
+                "user_cv_id": user_cv.id
             }
 
         yield user_data
