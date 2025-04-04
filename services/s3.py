@@ -27,7 +27,20 @@ def upload_to_s3(file_bytes: bytes, key: str, content_type: str, tags: str):
         )
 
     except ClientError as e:
-        logger.log_error(e)
+        logger.log_error(f"Failed to upload S3 object '{key}': {e}")
+        return False
+
+    return True
+
+def delete_from_s3(key):
+    s3 = get_s3_client()
+    try:
+        s3.delete_object(
+            Bucket=S3_BUCKET_NAME,
+            Key=key,
+        )
+    except ClientError as e:
+        logger.log_error(f"Failed to delete S3 object '{key}': {e}")
         return False
 
     return True

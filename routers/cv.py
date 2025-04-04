@@ -6,7 +6,7 @@ from sqlmodel import select
 from config import RATE_LIMIT_UPLOAD_CV
 from database import SessionDep
 from middleware.verify_user import verify_token
-from services.s3 import upload_to_s3
+from services.s3 import upload_to_s3, delete_from_s3
 from models.user import User, UserCV
 from helpers.validate_upload_file import validate_upload_file
 from helpers.limiter import RateLimiterService
@@ -65,3 +65,25 @@ async def get_cvs(request: Request, session: SessionDep, user=Depends(verify_tok
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return {"data": db_user.cvs}
+
+
+@router.delete("/", status_code=204)
+async def delete_cv(request: Request, session: SessionDep, id: str, user=Depends(verify_token)):
+    statement = select(User).where(User.email == user["email"])
+    db_user = session.exec(statement).first()
+
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_cv = session.get(UserCV, id)
+
+    if not user_cv:
+        raise HTTPException(status_code=404, detail="Cv not found")
+
+    delete_from_s3(key=user_cv.s3_key)
+
+    session.delete(user_cv)
+    session.commit()
+
+
+        
