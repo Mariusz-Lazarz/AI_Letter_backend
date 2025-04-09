@@ -45,3 +45,13 @@ def delete_from_s3(key):
         return False
 
     return True
+
+def get_from_s3(key):
+    s3 = get_s3_client()
+    try:
+        response = s3.get_object(Bucket=S3_BUCKET_NAME, Key=key)
+        pdf_data = response["Body"].read() 
+        return pdf_data
+    except ClientError as e:
+        logger.log_error(f"Failed to retrieve S3 object '{key}': {e}")
+        return None
