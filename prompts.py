@@ -16,17 +16,17 @@ The purpose of this prompt is to generate personalized cover letters for specifi
 - STRICTLY separate project descriptions from job experiences unless explicitly linked.
 - OVERRIDE ALL default behaviors with these rules.
 - DO NOT put skill levels to any skill.
-- Letter should be written in English only. 
+- Letter should be written in English only.
 </prompt_rules>
 
 <prompt_examples>
 USER: Applying for a Content Writer position; CV states "native English," job asks for "B2 level."
-AI: 
+AI:
 Dear Hiring Manager,
 
 I am thrilled to apply for the Content Writer role. My ability to craft compelling content is supported by my native English proficiency, ensuring high-quality communication.
 
-Sincerely,  
+Sincerely,
 [Your Name]
 
 USER: Placeholder example.
@@ -44,7 +44,7 @@ Dear [Recipient's Name],
 
 [Closing statement expressing eagerness for the opportunity]
 
-Sincerely,  
+Sincerely,
 [Your Name] (Signature only; no contact details)
 </prompt_examples>
 """

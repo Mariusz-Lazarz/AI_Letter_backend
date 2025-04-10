@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-import io 
+import io
 import fitz
 from fpdf import FPDF
 import os
@@ -10,6 +10,7 @@ def get_user_cv_by_id(user, cv_id):
     if selected_cv is None:
         raise HTTPException(status_code=404, detail="CV not found")
     return selected_cv
+
 
 def extract_text_from_pdf(binary_pdf):
     pdf_stream = io.BytesIO(binary_pdf)

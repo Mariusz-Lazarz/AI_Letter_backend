@@ -1,7 +1,7 @@
 from unittest.mock import patch, MagicMock
-import pytest
 from prompts import generate_letter_prompt
 from services.client_openai import generate_cover_letter
+
 
 @patch("services.client_openai.client")
 def test_generate_letter(mock_client):

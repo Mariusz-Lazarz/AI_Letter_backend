@@ -6,7 +6,6 @@ from helpers.cv import extract_text_from_pdf
 def test_extract_text_from_pdf(mock_fitz_open):
     mock_page1 = MagicMock()
     mock_page1.get_text.return_value = "Hello "
-    
     mock_page2 = MagicMock()
     mock_page2.get_text.return_value = "World!"
 

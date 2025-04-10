@@ -1,4 +1,3 @@
-import pytest
 from helpers.cv import convert_text_to_pdf
 
 
@@ -9,4 +8,3 @@ def test_convert_text_to_pdf():
 
     assert pdf_bytes.startswith(b"%PDF")
     assert isinstance(pdf_bytes, bytes)
-

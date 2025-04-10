@@ -13,8 +13,7 @@ router = APIRouter(prefix="/letter", dependencies=[Depends(verify_token)])
 @router.post("/", status_code=200)
 def generate_letter(request: Request, session: SessionDep, letter_data: GenerateCoverLetter, user=Depends(verify_token)):
 
-    db_user = get_user_by_email(session, user) 
-    
+    db_user = get_user_by_email(session, user)
     cv_id = letter_data.cv_id
     selected_cv = get_user_cv_by_id(db_user, cv_id)
 
