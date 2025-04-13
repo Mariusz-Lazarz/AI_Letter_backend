@@ -26,6 +26,7 @@ from config import (
 )
 from sqlmodel import select
 from helpers.logger import AppLogger
+from helpers.db import get_user_by_email
 import uuid
 
 logger = AppLogger(log_file="app.log")
@@ -83,12 +84,7 @@ async def verify(request: Request, session: SessionDep, token: str):
         if not user_email:
             raise HTTPException(status_code=400, detail="Invalid token: Email missing")
 
-        statement = select(User).where(User.email == user_email)
-        result = session.exec(statement)
-        user = result.first()
-
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+        user = get_user_by_email(session, user_email)
 
         if user.verification_token != token:
             raise HTTPException(status_code=403, detail="Invalid verification token")
@@ -124,11 +120,7 @@ async def resend_verification_token(
     background_tasks: BackgroundTasks,
 ):
     try:
-        statement = select(User).where(User.email == user_data.email)
-        user = session.exec(statement).first()
-
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+        user = get_user_by_email(session, user_data.email)
 
         if user.is_verified:
             return {"data": {"message": "User is already verified"}}
