@@ -2,16 +2,16 @@ import uuid
 import urllib.parse
 from typing import List
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Request
-from sqlmodel import select
 from config import RATE_LIMIT_UPLOAD_CV
 from database import SessionDep
 from middleware.verify_user import verify_token
 from services.s3 import upload_to_s3, delete_from_s3
-from models.user import User, UserCV
+from models.user import UserCV
 from helpers.validate_upload_file import validate_upload_file
 from helpers.limiter import RateLimiterService
 from schemas.cv import CvListItem
 from schemas.base import DataResponse
+from helpers.db import get_user_by_email
 
 limiter = RateLimiterService()
 
@@ -34,11 +34,8 @@ async def upload_file(request: Request, session: SessionDep, file: UploadFile = 
 
         if not uploaded_file:
             raise HTTPException(status_code=502, detail="Failed to upload a file")
-        statement = select(User).where(User.email == user["email"])
-        db_user = session.exec(statement).first()
+        get_user_by_email(session, user["email"])
 
-        if db_user is None:
-            raise HTTPException(status_code=404, detail="User not found")
         user_cv = UserCV(
             id=file_uuid,
             user_id=user["id"],
@@ -59,21 +56,13 @@ async def upload_file(request: Request, session: SessionDep, file: UploadFile = 
 
 @router.get("/", status_code=200, response_model=DataResponse[List[CvListItem]])
 async def get_cvs(request: Request, session: SessionDep, user=Depends(verify_token)):
-    statement = select(User).where(User.email == user["email"])
-    db_user = session.exec(statement).first()
-
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+    db_user = get_user_by_email(session, user["email"])
     return {"data": db_user.cvs}
 
 
 @router.delete("/", status_code=204)
 async def delete_cv(request: Request, session: SessionDep, id: str, user=Depends(verify_token)):
-    statement = select(User).where(User.email == user["email"])
-    db_user = session.exec(statement).first()
-
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+    get_user_by_email(session, user["email"])
 
     user_cv = session.get(UserCV, id)
 

@@ -5,15 +5,19 @@ from schemas.letter import GenerateCoverLetter
 from services.s3 import get_from_s3
 from helpers.cv import get_user_cv_by_id, extract_text_from_pdf, convert_text_to_pdf
 from helpers.db import get_user_by_email
+from helpers.limiter import RateLimiterService
 from services.client_openai import generate_cover_letter
+from config import RATE_LIMIT_GENERATE_LETTER
 
 router = APIRouter(prefix="/letter", dependencies=[Depends(verify_token)])
+limiter = RateLimiterService()
 
 
+@limiter.limit(RATE_LIMIT_GENERATE_LETTER)
 @router.post("/", status_code=200)
 def generate_letter(request: Request, session: SessionDep, letter_data: GenerateCoverLetter, user=Depends(verify_token)):
 
-    db_user = get_user_by_email(session, user)
+    db_user = get_user_by_email(session, user["email"])
     cv_id = letter_data.cv_id
     selected_cv = get_user_cv_by_id(db_user, cv_id)
 
