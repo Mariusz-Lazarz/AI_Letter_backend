@@ -111,9 +111,9 @@ def test_user_persisted_after_registration(client):
 
 
 def reset_rate_limiter():
-    """Clears all in-memory rate limit records instantly."""
-    for key in list(limiter.limiter._storage.storage.keys()):
-        limiter.limiter._storage.storage.pop(key, None)
+    """Completely flushes the Redis DB used by the rate limiter (test-safe only)."""
+    redis_client = limiter.limiter._storage.storage
+    redis_client.flushdb()
 
 
 def test_register_rate_limit(client):
