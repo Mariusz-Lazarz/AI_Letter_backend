@@ -1,6 +1,17 @@
 services:
   test:
     build: .
+    depends_on:
+      - redis
     env_file:
       - .env
-    command: ["pytest"]
+    command: ["pytest", "tests/"]
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
