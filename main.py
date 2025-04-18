@@ -4,9 +4,12 @@ from fastapi.exceptions import RequestValidationError
 from routers import auth, cv, letter
 from slowapi.errors import RateLimitExceeded
 from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
+from prometheus_fastapi_instrumentator import Instrumentator
 import errors
 
 app = FastAPI()
+
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(auth.router)
 app.include_router(cv.router)
