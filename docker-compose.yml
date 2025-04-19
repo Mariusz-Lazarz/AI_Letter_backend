@@ -5,12 +5,12 @@ services:
       redis:
         condition: service_healthy
     container_name: backend
-    ports:
-      - "8000:80"
     env_file:
       - .env
     restart: always
-
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.10
   redis:
     image: redis:latest
     container_name: redis
@@ -21,6 +21,9 @@ services:
       interval: 1s
       timeout: 5s
       retries: 10
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.20
 
   prometheus:
     image: prom/prometheus
@@ -33,6 +36,9 @@ services:
     ports:
       - "9090:9090"
     restart: always
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.30
 
   grafana:
     image: grafana/grafana
@@ -44,8 +50,32 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     restart: always
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.40
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.50
 
 volumes:
   redis-data:
   prometheus-data:
   grafana-data:
+
+networks:
+  backend_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
