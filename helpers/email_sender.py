@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from config import SMTP_PASS, SMTP_HOST, SMTP_PORT, SMTP_USER, BASE_DOMAIN
 from helpers.logger import AppLogger
 
-logger = AppLogger(log_file="email.log", logger_name="email_service")
+logger = AppLogger()
 
 
 class EmailSender:

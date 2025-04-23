@@ -1,14 +1,17 @@
 import logging
 import sys
+import os
 
 
 class AppLogger:
     """Centralized logging utility for FastAPI application."""
 
-    def __init__(self, log_file: str = "app.log", logger_name: str = "fastapi_app"):
+    def __init__(self, log_file: str = "logs/app.log", logger_name: str = "fastapi_app"):
         """Initialize logger with both console and file handlers."""
         self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.INFO)
+
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
 
         if not self.logger.hasHandlers():
             console_handler = logging.StreamHandler(sys.stdout)

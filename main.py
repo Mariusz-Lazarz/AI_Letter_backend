@@ -7,7 +7,7 @@ from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 from prometheus_fastapi_instrumentator import Instrumentator
 import errors
 
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 
 Instrumentator().instrument(app).expose(app)
 
