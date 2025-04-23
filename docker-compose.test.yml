@@ -6,7 +6,7 @@ services:
         condition: service_healthy
     env_file:
       - .env
-    command: ["pytest"]
+    command: ["pytest", "-vv"]
     networks:
       - backend
 
