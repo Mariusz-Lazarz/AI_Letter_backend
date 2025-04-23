@@ -18,7 +18,7 @@ limiter = RateLimiterService()
 router = APIRouter(prefix="/cvs", dependencies=[Depends(verify_token)])
 
 
-@router.post("/", status_code=200)
+@router.post("", status_code=200)
 @limiter.limit(RATE_LIMIT_UPLOAD_CV)
 async def upload_file(request: Request, session: SessionDep, file: UploadFile = File(...), user=Depends(verify_token)):
     try:
@@ -54,13 +54,13 @@ async def upload_file(request: Request, session: SessionDep, file: UploadFile = 
         raise
 
 
-@router.get("/", status_code=200, response_model=DataResponse[List[CvListItem]])
+@router.get("", status_code=200, response_model=DataResponse[List[CvListItem]])
 async def get_cvs(request: Request, session: SessionDep, user=Depends(verify_token)):
     db_user = get_user_by_email(session, user["email"])
     return {"data": db_user.cvs}
 
 
-@router.delete("/", status_code=204)
+@router.delete("", status_code=204)
 async def delete_cv(request: Request, session: SessionDep, id: str, user=Depends(verify_token)):
     get_user_by_email(session, user["email"])
 
