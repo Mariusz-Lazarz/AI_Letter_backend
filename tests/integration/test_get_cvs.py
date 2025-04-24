@@ -8,7 +8,7 @@ from schemas.cv import CvListItem
 def test_get_cvs_success(client, verified_test_user):
     access_token = sign_jwt(
         {"id": verified_test_user["id"], "email": verified_test_user["email"]},
-        JWT_ACCESS_TOKEN
+        JWT_ACCESS_TOKEN,
     )
     headers = {"Authorization": f"Bearer {access_token}"}
 
@@ -26,14 +26,11 @@ def test_get_cvs_no_user(client, verified_test_user):
 
     access_token = sign_jwt(
         {"id": verified_test_user["id"], "email": "fakeemail@test.com"},
-        JWT_ACCESS_TOKEN
+        JWT_ACCESS_TOKEN,
     )
     headers = {"Authorization": f"Bearer {access_token}"}
 
-    response = client.get(
-        "/cvs",
-        headers=headers
-    )
+    response = client.get("/cvs", headers=headers)
 
     assert response.status_code == 404
     assert response.json() == {"errors": "User not found"}

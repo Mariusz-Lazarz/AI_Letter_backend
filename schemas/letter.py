@@ -8,7 +8,9 @@ class JobDescriptionValidator:
         if len(value) < 50:
             raise ValueError("Job description must be at least 50 characters")
         if len(value) > 3000:
-            raise ValueError("Job description cannot be longer than 3000 characters long")
+            raise ValueError(
+                "Job description cannot be longer than 3000 characters long"
+            )
         return value
 
 

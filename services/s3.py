@@ -23,7 +23,7 @@ def upload_to_s3(file_bytes: bytes, key: str, content_type: str, tags: str):
             Key=key,
             Body=file_bytes,
             ContentType=content_type,
-            Tagging=tags
+            Tagging=tags,
         )
 
     except ClientError as e:

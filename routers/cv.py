@@ -20,7 +20,12 @@ router = APIRouter(prefix="/cvs", dependencies=[Depends(verify_token)])
 
 @router.post("", status_code=200)
 @limiter.limit(RATE_LIMIT_UPLOAD_CV)
-async def upload_file(request: Request, session: SessionDep, file: UploadFile = File(...), user=Depends(verify_token)):
+async def upload_file(
+    request: Request,
+    session: SessionDep,
+    file: UploadFile = File(...),
+    user=Depends(verify_token),
+):
     try:
         content = await validate_upload_file(file)
 
@@ -61,7 +66,9 @@ async def get_cvs(request: Request, session: SessionDep, user=Depends(verify_tok
 
 
 @router.delete("", status_code=204)
-async def delete_cv(request: Request, session: SessionDep, id: str, user=Depends(verify_token)):
+async def delete_cv(
+    request: Request, session: SessionDep, id: str, user=Depends(verify_token)
+):
     get_user_by_email(session, user["email"])
 
     user_cv = session.get(UserCV, id)

@@ -11,7 +11,7 @@ def test_upload_to_s3_success(mock_get_s3_client):
         file_bytes=b"test content",
         key="test-file.pdf",
         content_type="application/pdf",
-        tags="test=1"
+        tags="test=1",
     )
 
     mock_s3.put_object.assert_called_once()
@@ -25,7 +25,7 @@ def test_upload_to_s3_client_error(mock_get_s3_client):
     mock_s3 = MagicMock()
     mock_s3.put_object.side_effect = ClientError(
         error_response={"Error": {"Code": "AccessDenied", "Message": "Denied!"}},
-        operation_name="PutObject"
+        operation_name="PutObject",
     )
     mock_get_s3_client.return_value = mock_s3
 
@@ -33,7 +33,7 @@ def test_upload_to_s3_client_error(mock_get_s3_client):
         file_bytes=b"test content",
         key="test-file.pdf",
         content_type="application/pdf",
-        tags="test=1"
+        tags="test=1",
     )
 
     mock_s3.put_object.assert_called_once()
@@ -60,7 +60,7 @@ def test_delete_from_s3_client_error(mock_get_s3_client):
     mock_s3 = MagicMock()
     mock_s3.delete_object.side_effect = ClientError(
         error_response={"Error": {"Code": "AccessDenied", "Message": "Denied!"}},
-        operation_name="DeleteObject"
+        operation_name="DeleteObject",
     )
     mock_get_s3_client.return_value = mock_s3
 
@@ -78,7 +78,7 @@ def test_get_from_s3_success(mock_get_s3_client):
     mock_body = MagicMock()
     mock_body.read.return_value = b"file content"
 
-    mock_s3.get_object.return_value = {'Body': mock_body}
+    mock_s3.get_object.return_value = {"Body": mock_body}
     mock_get_s3_client.return_value = mock_s3
 
     result = get_from_s3(key="test-file.pdf")
@@ -94,7 +94,7 @@ def test_get_from_s3_client_error(mock_get_s3_client):
     mock_s3 = MagicMock()
     mock_s3.get_object.side_effect = ClientError(
         error_response={"Error": {"Code": "AccessDenied", "Message": "Denied!"}},
-        operation_name="DeleteObject"
+        operation_name="DeleteObject",
     )
     mock_get_s3_client.return_value = mock_s3
 
