@@ -10,6 +10,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: false
     environment: CI
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +33,9 @@ jobs:
 
       - name: Lint code
         run: flake8 .
+
+      - name: Check formatting with black
+        run: black --check .
 
       - name: Create .env file
         run: |

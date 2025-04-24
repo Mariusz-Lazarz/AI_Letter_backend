@@ -13,23 +13,19 @@ def test_upload_cv_success(client, verified_test_user):
 
     access_token = sign_jwt(
         {"id": verified_test_user["id"], "email": verified_test_user["email"]},
-        JWT_ACCESS_TOKEN
+        JWT_ACCESS_TOKEN,
     )
     headers = {"Authorization": f"Bearer {access_token}"}
 
-    response = client.post(
-        "/cvs",
-        files={"file": file},
-        headers=headers
-    )
+    response = client.post("/cvs", files={"file": file}, headers=headers)
 
     assert response.status_code == 200
     assert response.json() == {"message": "CV uploaded successfully"}
 
     with Session(engine) as session:
         stmt = select(UserCV).where(
-            (UserCV.user_id == verified_test_user["id"]) &
-            (UserCV.original_name == "cv.pdf")
+            (UserCV.user_id == verified_test_user["id"])
+            & (UserCV.original_name == "cv.pdf")
         )
         uploaded_cv = session.exec(stmt).first()
         assert uploaded_cv is not None
@@ -48,15 +44,11 @@ def test_upload_cv_fail(client, verified_test_user):
 
     access_token = sign_jwt(
         {"id": verified_test_user["id"], "email": verified_test_user["email"]},
-        JWT_ACCESS_TOKEN
+        JWT_ACCESS_TOKEN,
     )
     headers = {"Authorization": f"Bearer {access_token}"}
 
-    response = client.post(
-        "/cvs",
-        files={"file": file},
-        headers=headers
-    )
+    response = client.post("/cvs", files={"file": file}, headers=headers)
 
     assert response.status_code == 400
     assert response.json() == {"errors": "Only PDF files are allowed."}

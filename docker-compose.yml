@@ -33,8 +33,6 @@ services:
       - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-    ports:
-      - "9090:9090"
     restart: always
     networks:
       backend_net:
@@ -53,6 +51,12 @@ services:
     networks:
       backend_net:
         ipv4_address: 172.20.0.40
+    env_file:
+      - .env
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=http://localhost:8080/grafana
 
   nginx:
     image: nginx:latest

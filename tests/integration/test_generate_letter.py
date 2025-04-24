@@ -36,7 +36,10 @@ async def test_generate_letter_success(mock_s3, client, verified_test_user):
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/pdf"
-    assert response.headers["content-disposition"] == "attachment; filename=cover_letter.pdf"
+    assert (
+        response.headers["content-disposition"]
+        == "attachment; filename=cover_letter.pdf"
+    )
     assert response.content.startswith(b"%PDF")
 
 
