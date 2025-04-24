@@ -62,7 +62,9 @@ async def request_validation_error_handler(
 async def global_exception_handler(request: Request, exc: Exception):
     """Handles unexpected global exceptions."""
     logger.log_exception(exc)
-    return build_response(errors=["An error occurred. Try again later!"], status_code=500)
+    return build_response(
+        errors=["An error occurred. Try again later!"], status_code=500
+    )
 
 
 async def http_exception_handler(request: Request, exc: HTTPException):
@@ -77,7 +79,9 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     logger.log_warning(exc)
-    return build_response(errors=["Too many request please try again later!"], status_code=429)
+    return build_response(
+        errors=["Too many request please try again later!"], status_code=429
+    )
 
 
 async def jwt_invalid_signature_handler(request: Request, exc: InvalidSignatureError):

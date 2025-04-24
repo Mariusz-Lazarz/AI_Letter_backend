@@ -13,10 +13,10 @@ def test_generate_letter(mock_client):
     cv = "CV text"
     job = "Job description"
     letter = generate_cover_letter(cv, job)
-    assert letter == 'Test'
+    assert letter == "Test"
 
     mock_client.responses.create.assert_called_once_with(
         model="gpt-4o",
         instructions=generate_letter_prompt,
-        input=f"<cv> {cv} </cv> <job> {job} </job>"
+        input=f"<cv> {cv} </cv> <job> {job} </job>",
     )

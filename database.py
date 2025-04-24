@@ -3,7 +3,10 @@ from fastapi import Depends
 from typing import Annotated
 from config import URL_DATABASE
 
-engine = create_engine(URL_DATABASE, echo=True,)
+engine = create_engine(
+    URL_DATABASE,
+    echo=True,
+)
 
 
 def create_db_and_tables():

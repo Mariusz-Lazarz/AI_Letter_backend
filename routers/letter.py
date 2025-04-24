@@ -15,7 +15,12 @@ limiter = RateLimiterService()
 
 @limiter.limit(RATE_LIMIT_GENERATE_LETTER)
 @router.post("/", status_code=200)
-def generate_letter(request: Request, session: SessionDep, letter_data: GenerateCoverLetter, user=Depends(verify_token)):
+def generate_letter(
+    request: Request,
+    session: SessionDep,
+    letter_data: GenerateCoverLetter,
+    user=Depends(verify_token),
+):
 
     db_user = get_user_by_email(session, user["email"])
     cv_id = letter_data.cv_id
@@ -36,7 +41,5 @@ def generate_letter(request: Request, session: SessionDep, letter_data: Generate
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={
-            "Content-Disposition": "attachment; filename=cover_letter.pdf"
-        }
+        headers={"Content-Disposition": "attachment; filename=cover_letter.pdf"},
     )

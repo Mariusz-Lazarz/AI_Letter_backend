@@ -26,9 +26,9 @@ def convert_text_to_pdf(letter_content):
     pdf.add_font("DejaVu", "", font_path, uni=True)
     pdf.set_font("DejaVu", size=12)
 
-    for line in letter_content.split('\n'):
+    for line in letter_content.split("\n"):
         pdf.multi_cell(0, 10, line)
 
-    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    pdf_bytes = pdf.output(dest="S").encode("latin1")
 
     return pdf_bytes
