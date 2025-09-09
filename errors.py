@@ -8,7 +8,7 @@ from helpers.logger import AppLogger
 import json
 from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 
-logger = AppLogger(log_file="app.log", logger_name="fastapi_app")
+logger = AppLogger()
 
 
 def build_response(errors, status_code):

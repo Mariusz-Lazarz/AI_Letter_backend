@@ -29,7 +29,7 @@ from helpers.logger import AppLogger
 from helpers.db import get_user_by_email
 import uuid
 
-logger = AppLogger(log_file="app.log")
+logger = AppLogger()
 
 email_sender = EmailSender()
 limiter = RateLimiterService()

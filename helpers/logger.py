@@ -5,8 +5,8 @@ import sys
 class AppLogger:
     """Centralized logging utility for FastAPI application."""
 
-    def __init__(self, log_file: str = "app.log", logger_name: str = "fastapi_app"):
-        """Initialize logger with both console and file handlers."""
+    def __init__(self, logger_name: str = "fastapi_app"):
+        """Initialize logger with console handler only."""
         self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.INFO)
 
@@ -18,12 +18,6 @@ class AppLogger:
             )
             console_handler.setFormatter(console_format)
             self.logger.addHandler(console_handler)
-
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(logging.INFO)
-            file_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-            file_handler.setFormatter(file_format)
-            self.logger.addHandler(file_handler)
 
     def log_info(self, message: str):
         """Log an INFO message."""

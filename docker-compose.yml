@@ -72,6 +72,29 @@ services:
       backend_net:
         ipv4_address: 172.20.0.50
 
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.60
+
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - ./promtail-config.yml:/etc/promtail/promtail.yaml
+    command: -config.file=/etc/promtail/promtail.yaml
+    restart: always
+    networks:
+      backend_net:
+        ipv4_address: 172.20.0.70
+
 volumes:
   redis-data:
   prometheus-data:
